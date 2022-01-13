@@ -1,0 +1,22 @@
+{
+  "name": "xenditnotif",
+  "version": "1.0.0",
+  "description": "Notification assignment for Xendit Trial",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Asyrul Ahmad",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^11.0.0",
+    "express": "^4.17.2",
+    "jsonwebtoken": "^8.5.1",
+    "mock-mongoose": "^8.0.1-a",
+    "mongoose": "^6.1.6",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.7.2",
+    "nodemon": "^2.0.15"
+  }
+}
