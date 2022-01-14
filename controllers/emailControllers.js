@@ -13,27 +13,26 @@ var MailTransporter = nodemailer.createTransport({
 });
 
 const sendEmail = async (req, res, next) => {
-  const { merchantEmail } = req.body;
-  console.log(`Merchant email: ${merchantEmail}`);
+  const { sender, recipient, message, subject } = req.body;
   try {
-    if (!merchantEmail) {
-      throw "No recipient email specified.";
+    if (!sender || !recipient || !message || !subject) {
+      throw "Required parameter(s) missing or invalid.";
     }
     const emailInfo = await MailTransporter.sendMail({
-      from: '"Asyrul Service Test" <asyrulhafetzy.dev@gmail.com>',
-      to: merchantEmail,
-      subject: "Test Works ✔",
-      html: "<b>Hello world!</b><br>This is our first message sent with Nodemailer",
+      from: sender,
+      to: recipient,
+      subject: subject,
+      html: message,
     });
-    console.log(emailInfo);
     return res.status(200).json({
       status: "success",
       messageId: emailInfo.messageId,
       messageUrl: nodemailer.getTestMessageUrl(emailInfo),
+      emailInfo,
     });
   } catch (error) {
     console.error(error);
-    res.status(500);
+    res.status(400);
     next(new Error("Sending email failed. " + error));
   }
 };
