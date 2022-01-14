@@ -1,16 +1,10 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const nodemailer = require("nodemailer");
-var MailTransporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
-  auth: {
-    // user: process.env.MAILTRAP_USER,
-    // pass: process.env.MAILTRAP_PASS,
-    user: process.env.ETHEREAL_USER,
-    pass: process.env.ETHEREAL_PASS,
-  },
-});
+const { toBuffer } = require("../utils");
+
+const amqp = require("amqplib/callback_api");
+const cloudRabbitMQConnURL = process.env.CLOUD_RABBIT_MQ_URL;
+const QUENAME = "xendit-trial-notifs";
 
 const sendEmail = async (req, res, next) => {
   const { sender, recipient, message, subject } = req.body;
@@ -18,17 +12,20 @@ const sendEmail = async (req, res, next) => {
     if (!sender || !recipient || !message || !subject) {
       throw "Required parameter(s) missing or invalid.";
     }
-    const emailInfo = await MailTransporter.sendMail({
-      from: sender,
-      to: recipient,
-      subject: subject,
-      html: message,
-    });
-    return res.status(200).json({
-      status: "success",
-      messageId: emailInfo.messageId,
-      messageUrl: nodemailer.getTestMessageUrl(emailInfo),
-      emailInfo,
+    const data = {
+      sender,
+      recipient,
+      message,
+      subject,
+    };
+    const buf = toBuffer(data);
+    amqp.connect(cloudRabbitMQConnURL, function (err, conn) {
+      conn.createChannel(function (err, channel) {
+        channel.sendToQueue(QUENAME, buf);
+        return res.status(200).json({
+          status: "queued",
+        });
+      });
     });
   } catch (error) {
     console.error(error);

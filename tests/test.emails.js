@@ -46,6 +46,7 @@ describe("Email Routes", () => {
       result.should.be.json;
       const data = { ...result.body };
       isSuccessData(data);
+      data.status.should.equal("queued");
     });
   });
 });
