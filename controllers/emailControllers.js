@@ -7,7 +7,7 @@ const cloudRabbitMQConnURL = process.env.CLOUD_RABBIT_MQ_URL;
 const QUENAME = "xendit-trial-notifs";
 
 const sendEmail = async (req, res, next) => {
-  const { sender, recipient, message, subject } = req.body;
+  const { sender, recipient, message, subject, triggeredEventId } = req.body;
   try {
     if (!sender || !recipient || !message || !subject) {
       throw "Required parameter(s) missing or invalid.";
@@ -17,6 +17,7 @@ const sendEmail = async (req, res, next) => {
       recipient,
       message,
       subject,
+      eventId: triggeredEventId ? triggeredEventId : null,
     };
     const buf = toBuffer(data);
     amqp.connect(cloudRabbitMQConnURL, function (err, conn) {
